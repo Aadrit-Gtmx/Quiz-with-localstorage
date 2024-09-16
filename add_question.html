@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Questions</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #42464f;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            width: 60%;
+            margin: 0 auto;
+        }
+        .button {
+            display: inline-block;
+            width: 200px;
+            margin: 15px;
+            padding: 15px;
+            background: linear-gradient(to right, #4dffaf, #357bbc);
+            color: #2f0c0b;
+            text-decoration: none;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 18px;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #4882cd;
+        }
+        input, textarea {
+            display: block;
+            margin: 10px auto;
+            padding: 10px;
+            width: 80%;
+            font-size: 18px;
+            border-radius: 5px;
+        }
+        textarea {
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Add Questions</h1>
+        <form id="questionForm">
+            <input type="text" id="questionText" placeholder="Enter question text" required>
+            <textarea id="options" placeholder="Enter options (comma separated)" required></textarea>
+            <input type="number" id="correctIndex" placeholder="Enter index of correct answer (0-based)" required>
+            <button type="submit" class="button">Add Question</button>
+        </form>
+        <button class="button" onclick="location.href='quiz.html'">Go to Quiz</button>
+    </div>
+
+    <script>
+        document.getElementById('questionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const questionText = document.getElementById('questionText').value;
+            const options = document.getElementById('options').value.split(',');
+            const correctIndex = parseInt(document.getElementById('correctIndex').value, 10);
+
+            if (options.length < 2) {
+                alert('Please provide at least two options.');
+                return;
+            }
+
+            const newQuestion = {
+                question: questionText,
+                options: options,
+                correct: correctIndex
+            };
+
+            let questions = JSON.parse(localStorage.getItem('quizQuestions')) || [];
+            questions.push(newQuestion);
+            localStorage.setItem('quizQuestions', JSON.stringify(questions));
+
+            alert('Question added successfully!');
+            document.getElementById('questionForm').reset();
+        });
+    </script>
+</body>
+</html>
