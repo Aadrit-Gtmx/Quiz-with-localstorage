@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Page</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #42464f;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            width: 60%;
+            margin: 0 auto;
+        }
+        .button {
+            display: inline-block;
+            width: 200px;
+            margin: 15px;
+            padding: 15px;
+            background: linear-gradient(to right, #4dffaf, #357bbc);
+            color: #2f0c0b;
+            text-decoration: none;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 18px;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #4882cd;
+        }
+        h1 {
+            margin-bottom: 50px;
+        }
+        .question {
+            margin-bottom: 20px;
+            font-size: 24px; /* Increase question size */
+        }
+        .option-btn {
+            display: block;
+            margin: 10px auto; /* Center align buttons */
+            padding: 15px;
+            font-size: 18px; /* Increase font size for buttons */
+            background-color: #4dffaf;
+            border: none;
+            border-radius: 10px;
+            color: #2f0c0b;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 60%;
+        }
+        .option-btn:hover {
+            background-color: #357bbc;
+            color: white;
+        }
+        .correct {
+            background-color: green !important;
+            color: white !important;
+        }
+        .wrong {
+            background-color: red !important;
+            color: white !important;
+        }
+        #nextBtn {
+            display: none;
+        }
+        #score-container {
+            display: none;
+            margin-top: 20px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Take the Quiz!</h1>
+        <div id="quiz-container">
+            <!-- Questions will be loaded here one at a time -->
+        </div>
+        <button id="nextBtn" class="button">Next Question</button>
+        <button id="submitBtn" class="button" style="display: none;">Submit Quiz</button>
+        <button id="backHomeBtn" class="button" style="display: none;" onclick="location.href='index.html'">Back to Home</button>
+
+        <!-- Score section -->
+        <div id="score-container">
+            <p>Your Score: <span id="score"></span>/<span id="total"></span></p>
+        </div>
+    </div>
+
+    <script>
+        function getQuizQuestions() {
+            const savedQuestions = JSON.parse(localStorage.getItem('quizQuestions'));
+            return savedQuestions ? savedQuestions : [];
+        }
+
+        let quizQuestions = getQuizQuestions();
+        let currentQuestionIndex = 0;
+        let score = 0;  // Keep track of the score
+        const quizContainer = document.getElementById('quiz-container');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const scoreContainer = document.getElementById('score-container');
+        const scoreElement = document.getElementById('score');
+        const totalElement = document.getElementById('total');
+
+        // Function to render a single question
+        function loadQuestion(index) {
+            quizContainer.innerHTML = "";
+            nextBtn.style.display = 'none'; // Hide next button initially
+            if (index >= quizQuestions.length) {
+                submitBtn.style.display = 'block'; // Show submit button after last question
+                return;
+            }
+
+            const questionObj = quizQuestions[index];
+            const questionDiv = document.createElement('div');
+            questionDiv.classList.add('question');
+            questionDiv.innerHTML = `<p>${index + 1}. ${questionObj.question}</p>`;
+
+            // Render option buttons
+            questionObj.options.forEach((option, optIndex) => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'option-btn';
+                optionBtn.innerText = option;
+                optionBtn.onclick = function() {
+                    checkAnswer(optionBtn, optIndex, questionObj.correct);
+                };
+                questionDiv.appendChild(optionBtn);
+            });
+
+            quizContainer.appendChild(questionDiv);
+        }
+
+        // Function to check the answer and show the next button
+        function checkAnswer(button, selectedIndex, correctIndex) {
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.disabled = true);  // Disable all buttons after clicking
+
+            if (selectedIndex === correctIndex) {
+                button.classList.add('correct'); // Correct answer, make button green
+                score++;  // Increment score for correct answer
+            } else {
+                button.classList.add('wrong'); // Wrong answer, make button red
+                buttons[correctIndex].classList.add('correct'); // Highlight correct answer
+            }
+            nextBtn.style.display = 'block';  // Show "Next Question" button
+        }
+
+        // Function to go to the next question
+        nextBtn.addEventListener('click', function() {
+            currentQuestionIndex++;
+            loadQuestion(currentQuestionIndex);
+        });
+
+        // Submit quiz logic
+        submitBtn.addEventListener('click', function() {
+            submitBtn.style.display = 'none';
+            document.getElementById('backHomeBtn').style.display = 'block';  // Show "Back to Home" button
+
+            // Show the final score
+            scoreContainer.style.display = 'block';
+            scoreElement.innerText = score;
+            totalElement.innerText = quizQuestions.length;
+
+            alert('Quiz Finished! Check your score.');
+        });
+
+        // Initial Load of First Question
+        if (quizQuestions.length > 0) {
+            loadQuestion(currentQuestionIndex);
+        } else {
+            quizContainer.innerHTML = "<p>No questions available. Please add questions to start the quiz.</p>";
+        }
+    </script>
+</body>
+</html>
